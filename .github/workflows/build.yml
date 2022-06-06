@@ -18,15 +18,15 @@ jobs:
       - name: Check commit
         uses: damianopetrungaro/action-conventional-commits@v1.0.3
 
-  lint:
-    name: Lint code
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  #lint:
+  #  name: Lint code
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v2
 
-      - name: Lint code
-        uses: ./.github/actions/lint
+  #    - name: Lint code
+  #      uses: ./.github/actions/lint
 
   unit-test:
     strategy:
