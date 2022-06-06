@@ -1,20 +1,19 @@
-package inmem
+package cache
 
 import (
 	"context"
 	"fmt"
 	"sync"
 	"time"
-
-	"github.com/damianopetrungaro/go-cache"
 )
 
-var _ cache.Cache[string, any] = &InMem[string, any]{}
+var _ Cache[string, any] = &InMem[string, any]{}
 
 type expiresAt int64
 
 func (ea expiresAt) isExpired() bool {
-	return time.Now().UnixNano() > int64(ea) && ea != -1
+	i := int64(ea)
+	return time.Now().UnixNano() > i && i != int64(NoExpiration)
 }
 
 type item[V any] struct {
@@ -22,13 +21,16 @@ type item[V any] struct {
 	expiresAt expiresAt
 }
 
+// InMem is a Cache implementation which interacts with an in-memory map
+// It is concurrent safe
 type InMem[K comparable, V any] struct {
 	items  map[K]item[V]
 	mu     sync.Mutex
 	ticker *time.Ticker
 }
 
-func New[K comparable, V any](cleanUpInterval time.Duration) *InMem[K, V] {
+// NewInMemory returns a InMem instance
+func NewInMemory[K comparable, V any](cleanUpInterval time.Duration) *InMem[K, V] {
 	inmem := &InMem[K, V]{
 		items:  map[K]item[V]{},
 		ticker: time.NewTicker(cleanUpInterval),
@@ -43,36 +45,38 @@ func New[K comparable, V any](cleanUpInterval time.Duration) *InMem[K, V] {
 	return inmem
 }
 
+// Get retrieves an item from an in-memory map
 func (i *InMem[K, V]) Get(ctx context.Context, key K) (V, error) {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 	select {
 	case <-ctx.Done():
-		return *new(V), fmt.Errorf("%w: %s", cache.ErrNotGet, ctx.Err())
+		return *new(V), fmt.Errorf("%w: %s", ErrNotGet, ctx.Err())
 	default:
 	}
 	item, ok := i.items[key]
 	if !ok {
-		return *new(V), cache.ErrNotFound
+		return *new(V), ErrNotFound
 	}
 
 	if item.expiresAt.isExpired() {
-		return *new(V), cache.ErrExpired
+		return *new(V), ErrExpired
 	}
 
 	return item.val, nil
 }
 
+// Set stores an item to an in-memory map
 func (i *InMem[K, V]) Set(ctx context.Context, key K, val V, ttl time.Duration) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 	select {
 	case <-ctx.Done():
-		return fmt.Errorf("%w: %s", cache.ErrNotSet, ctx.Err())
+		return fmt.Errorf("%w: %s", ErrNotSet, ctx.Err())
 	default:
 	}
 	exp := expiresAt(ttl)
-	if ttl != cache.NoExpiration {
+	if ttl != NoExpiration {
 		exp = expiresAt(time.Now().Add(ttl).UnixNano())
 	}
 
@@ -80,18 +84,20 @@ func (i *InMem[K, V]) Set(ctx context.Context, key K, val V, ttl time.Duration) 
 	return nil
 }
 
+// Delete removes an item to an in-memory map
 func (i *InMem[K, V]) Delete(ctx context.Context, key K) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 	select {
 	case <-ctx.Done():
-		return fmt.Errorf("%w: %s", cache.ErrNotDelete, ctx.Err())
+		return fmt.Errorf("%w: %s", ErrNotDelete, ctx.Err())
 	default:
 	}
 	delete(i.items, key)
 	return nil
 }
 
+// Close stops the inner ticker
 func (i *InMem[K, V]) Close() error {
 	i.mu.Lock()
 	defer i.mu.Unlock()

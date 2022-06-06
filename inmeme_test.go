@@ -1,4 +1,4 @@
-package inmem_test
+package cache_test
 
 import (
 	"context"
@@ -7,8 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/damianopetrungaro/go-cache"
-	. "github.com/damianopetrungaro/go-cache/inmem"
+	. "github.com/damianopetrungaro/go-cache"
 )
 
 func TestInMem(t *testing.T) {
@@ -17,7 +16,7 @@ func TestInMem(t *testing.T) {
 		inmem := newInMemHelper(t)
 
 		val, err := inmem.Get(context.Background(), "one")
-		if !errors.Is(err, cache.ErrNotFound) {
+		if !errors.Is(err, ErrNotFound) {
 			t.Errorf("could not match not found error. got: %s", err)
 		}
 
@@ -31,7 +30,7 @@ func TestInMem(t *testing.T) {
 
 		const k = "key"
 		want := "value"
-		if err := inmem.Set(context.Background(), k, want, cache.NoExpiration); err != nil {
+		if err := inmem.Set(context.Background(), k, want, NoExpiration); err != nil {
 			t.Fatalf("could not set item: %s", err)
 		}
 
@@ -50,7 +49,7 @@ func TestInMem(t *testing.T) {
 
 		const k = "key"
 		want := "value"
-		if err := inmem.Set(context.Background(), k, want, cache.NoExpiration); err != nil {
+		if err := inmem.Set(context.Background(), k, want, NoExpiration); err != nil {
 			t.Fatalf("could not set item: %s", err)
 		}
 
@@ -59,7 +58,7 @@ func TestInMem(t *testing.T) {
 		}
 
 		val, err := inmem.Get(context.Background(), k)
-		if !errors.Is(err, cache.ErrNotFound) {
+		if !errors.Is(err, ErrNotFound) {
 			t.Errorf("could not match not found error. got: %s", err)
 		}
 
@@ -98,7 +97,7 @@ func TestInMem(t *testing.T) {
 
 		time.Sleep(time.Millisecond)
 		val, err := inmem.Get(context.Background(), k)
-		if !errors.Is(err, cache.ErrNotGet) {
+		if !errors.Is(err, ErrNotGet) {
 			t.Errorf("could not match not found error. got: %s", err)
 		}
 
@@ -109,7 +108,7 @@ func TestInMem(t *testing.T) {
 }
 
 func newInMemHelper(t *testing.T) *InMem[string, string] {
-	inmem := New[string, string](time.Millisecond)
+	inmem := NewInMemory[string, string](time.Millisecond)
 	t.Cleanup(func() {
 		if err := inmem.Close(); err != nil {
 			t.Errorf("could not close inmem: %s", err)
