@@ -14,11 +14,7 @@ var _ cache.Cache[string, any] = &InMem[string, any]{}
 type expiresAt int64
 
 func (ea expiresAt) isExpired() bool {
-	if time.Now().UnixNano() > int64(ea) && ea != -1 {
-		return true
-	}
-
-	return false
+	return time.Now().UnixNano() > int64(ea) && ea != -1
 }
 
 type item[V any] struct {
@@ -32,10 +28,10 @@ type InMem[K comparable, V any] struct {
 	ticker *time.Ticker
 }
 
-func New[K comparable, V any](xxx time.Duration) *InMem[K, V] {
+func New[K comparable, V any](cleanUpInterval time.Duration) *InMem[K, V] {
 	inmem := &InMem[K, V]{
 		items:  map[K]item[V]{},
-		ticker: time.NewTicker(xxx),
+		ticker: time.NewTicker(cleanUpInterval),
 	}
 
 	go func() {
