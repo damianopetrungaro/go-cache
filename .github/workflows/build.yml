@@ -51,7 +51,7 @@ jobs:
     needs:
       - conventional-commit
       - unit-test
-      - lint
+      # - lint
     if: success() && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
