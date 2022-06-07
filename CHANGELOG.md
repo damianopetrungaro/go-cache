@@ -1,4 +1,13 @@
-# 0.1.0 (2022-06-07)
+## [0.1.1](https://github.com/damianopetrungaro/go-cache/compare/v0.1.0...v0.1.1) (2022-06-07)
+
+
+### Bug Fixes
+
+* minot test improvement ([e9e57b2](https://github.com/damianopetrungaro/go-cache/commit/e9e57b2cec9f0d345f3eb21e589e8ab9e144d76e))
+
+
+
+# [0.1.0](https://github.com/damianopetrungaro/go-cache/compare/2bddcfe8df2a6313918681ec87f9b857a7d43781...v0.1.0) (2022-06-07)
 
 
 ### Features
