@@ -123,7 +123,8 @@ multilvl := NewMultiLevel[string, int](c1,c2, c3)
 GoCache is a really fast caching solution,
 with 0 allocations as well as crazy performances.
 
-Benchmarks comparing it to [dgraph/ristretto](https://github.com/dgraph-io/ristretto)
+Benchmarks comparing it to [dgraph/ristretto](https://github.com/dgraph-io/ristretto),
+[allegro/bigcache](https://github.com/allegro/bigcache),
 and [patrickmn/go-cache](https://github.com/patrickmn/go-cache)
 
 ```text
@@ -152,6 +153,22 @@ BenchmarkLogger/patrickmn/go-cache.prefilled-12         17133223               3
 BenchmarkLogger/patrickmn/go-cache.prefilled_with_cleanup-12            16663183               366.7 ns/op            24 B/op          1 allocs/op
 PASS
 ok      github.com/damianopetrungaro/go-cache/benchmarks/cache/patrickmn        19.469s
+```
+
+```
+// allegro/bigcache
+
+cd ./allegro && go1.17.11 test ./... -bench=. -benchmem -benchtime=5s
+goos: darwin
+goarch: amd64
+pkg: github.com/damianopetrungaro/go-cache/benchmarks/cache/allegro
+cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+BenchmarkLogger/allegro/bigcache.empty-12               13124148               593.7 ns/op            91 B/op          0 allocs/op
+BenchmarkLogger/allegro/bigcache.prefilled-12           10756856               464.9 ns/op            55 B/op          0 allocs/op
+BenchmarkLogger/allegro/bigcache.prefilled_with_cleanup-12              14478454               425.3 ns/op            10 B/op          0 allocs/op
+PASS
+ok      github.com/damianopetrungaro/go-cache/benchmarks/cache/allegro  22.240s
+
 ```
 
 ```
