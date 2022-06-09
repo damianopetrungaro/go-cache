@@ -7,62 +7,47 @@ import (
 
 // MultiLevel is a Cache implementation which allow a multi level usage cache
 type MultiLevel[K comparable, V any] struct {
-	caches []Cache[K, V]
+	local  *InMem[K, V]
+	remote Cache[K, V]
 }
 
 // NewMultiLevel returns a MultiLevel
-func NewMultiLevel[K comparable, V any](cs ...Cache[K, V]) *MultiLevel[K, V] {
+func NewMultiLevel[K comparable, V any](local *InMem[K, V], remote Cache[K, V]) *MultiLevel[K, V] {
 	return &MultiLevel[K, V]{
-		caches: cs,
+		local:  local,
+		remote: remote,
 	}
 }
 
-// Get traverse all the caches, if all of them fail it returns the last error
+// Get search in local cache first, if an error occurred moves to the remote one
 func (m *MultiLevel[K, V]) Get(ctx context.Context, k K) (V, error) {
-	var lastErr error
-	for _, c := range m.caches {
-		val, err := c.Get(ctx, k)
-		switch err {
-		case nil:
-			return val, nil
-		default:
-			lastErr = err
-		}
+	val, err := m.local.Get(ctx, k)
+	if err != nil {
+		return m.remote.Get(ctx, k)
 	}
-
-	return *new(V), lastErr
+	return val, nil
 }
 
 // Set traverse all the caches, if all of them fail it returns a generic ErrNotSet
 func (m *MultiLevel[K, V]) Set(ctx context.Context, k K, v V, ttl time.Duration) error {
-	var succeed int
-
-	for _, c := range m.caches {
-		if err := c.Set(ctx, k, v, ttl); err == nil {
-			succeed++
-		}
+	if err := m.remote.Set(ctx, k, v, ttl); err != nil {
+		return err
 	}
 
-	if succeed == 0 {
-		return ErrNotSet
-	}
-
+	// in memory won't fail apart from having a ctx done.
+	// passing a background to prevent it
+	_ = m.local.Set(context.Background(), k, v, ttl)
 	return nil
 }
 
 // Delete traverse all the caches, if all of them fail it returns a generic ErrNotDelete
 func (m *MultiLevel[K, V]) Delete(ctx context.Context, k K) error {
-	var succeed int
-
-	for _, c := range m.caches {
-		if err := c.Delete(ctx, k); err == nil {
-			succeed++
-		}
+	if err := m.remote.Delete(ctx, k); err != nil {
+		return err
 	}
 
-	if succeed == 0 {
-		return ErrNotDelete
-	}
-
+	// in memory won't fail apart from having a ctx done.
+	// passing a background to prevent it
+	_ = m.local.Delete(context.Background(), k)
 	return nil
 }
