@@ -17,14 +17,14 @@ type Option[K string, V any] func(*Redis[K, V])
 
 // Redis is a cache.Cache implementation which interacts with a redis server
 type Redis[K string, V any] struct {
-	cl                 *redis.Client
+	cl                 redis.Cmdable
 	enc                Encoder[V]
 	dec                Decoder[*V]
 	shouldEncodeDecode bool
 }
 
 // New returns a Redis instance
-func New[K string, V any](cl *redis.Client, opts ...Option[K, V]) *Redis[K, V] {
+func New[K string, V any](cl redis.Cmdable, opts ...Option[K, V]) *Redis[K, V] {
 	r := &Redis[K, V]{
 		cl: cl,
 	}
@@ -93,9 +93,4 @@ func (r *Redis[K, V]) Delete(ctx context.Context, k K) error {
 		return fmt.Errorf("%w:%s", cache.ErrNotDelete, err)
 	}
 	return nil
-}
-
-// Close closes the redis connection
-func (r *Redis[K, V]) Close() error {
-	return r.cl.Close()
 }

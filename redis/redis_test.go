@@ -44,11 +44,7 @@ func TestRedis(t *testing.T) {
 }
 
 func testHelper(t *testing.T, redisCache *Redis[string, string]) {
-	t.Cleanup(func() {
-		if err := redisCache.Close(); err != nil {
-			t.Errorf("could not close redis: %s", err)
-		}
-	})
+	t.Helper()
 	t.Run("not found", func(t *testing.T) {
 		val, err := redisCache.Get(context.Background(), uuid.New().String())
 		if !errors.Is(err, cache.ErrNotFound) {

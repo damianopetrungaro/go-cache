@@ -61,8 +61,10 @@ Create an InMemory implementation
 ```go
 // the first generic is a comparable type used as key
 // the second generic is any type used as value
-// the first argument of the factory function is needed to determine the cleanup interval of the in memory cache
-inmem := NewInMemory[string, int](time.Second)
+// the first argument of the factory function represent the max item capacity of the cache
+// when the max capacity gets hit, then all the expired items get deleted and if none is expired 
+// then the one closest to the expiry get deleted 
+inmem := NewInMemory[string, int](100_000)
 ```
 
 ### Redis
@@ -179,9 +181,9 @@ goos: darwin
 goarch: amd64
 pkg: github.com/damianopetrungaro/go-cache/benchmarks/cache
 cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
-BenchmarkLogger/damianopetrungaro/go-cache.empty-12             19127402               304.5 ns/op             0 B/op          0 allocs/op
-BenchmarkLogger/damianopetrungaro/go-cache.prefilled-12         18361458               337.2 ns/op             0 B/op          0 allocs/op
-BenchmarkLogger/damianopetrungaro/go-cache.prefilled_with_cleanup-12            18124486               359.9 ns/op             0 B/op          0 allocs/op
+BenchmarkLogger/damianopetrungaro/go-cache.empty-12             22228510               270.5 ns/op             0 B/op          0 allocs/op
+BenchmarkLogger/damianopetrungaro/go-cache.prefilled-12         20715753               268.8 ns/op             0 B/op          0 allocs/op
+BenchmarkLogger/damianopetrungaro/go-cache.prefilled_with_cleanup-12            21777249               269.2 ns/op             0 B/op          0 allocs/op
 PASS
 ok      github.com/damianopetrungaro/go-cache/benchmarks/cache  19.755s
 ```

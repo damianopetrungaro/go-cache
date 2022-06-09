@@ -105,12 +105,16 @@ func TestMultiLevel(t *testing.T) {
 }
 
 func newMultiLevel(t *testing.T) *MultiLevel[string, string] {
-	inmem1 := NewInMemory[string, string](time.Second)
-	inmem2 := NewInMemory[string, string](time.Second)
+	t.Helper()
+	inmem1 := NewInMemory[string, string](time.Second, 5)
+	inmem2 := NewInMemory[string, string](time.Second, 5)
 	multiLlv := NewMultiLevel[string, string](inmem1, inmem2)
 	t.Cleanup(func() {
-		if err := multiLlv.Close(); err != nil {
-			t.Errorf("could not close multi level: %s", err)
+		if err := inmem1.Close(); err != nil {
+			t.Errorf("could not close inmem1 level: %s", err)
+		}
+		if err := inmem2.Close(); err != nil {
+			t.Errorf("could not close inmem2 level: %s", err)
 		}
 	})
 	return multiLlv
