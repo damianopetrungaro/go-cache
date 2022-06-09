@@ -17,16 +17,20 @@ func NewMultiLevel[K comparable, V any](cs ...Cache[K, V]) *MultiLevel[K, V] {
 	}
 }
 
-// Get traverse all the caches, if all of them fail it returns a generic ErrNotGet
+// Get traverse all the caches, if all of them fail it returns the last error
 func (m *MultiLevel[K, V]) Get(ctx context.Context, k K) (V, error) {
+	var lastErr error
 	for _, c := range m.caches {
 		val, err := c.Get(ctx, k)
-		if err == nil {
+		switch err {
+		case nil:
 			return val, nil
+		default:
+			lastErr = err
 		}
 	}
 
-	return *new(V), ErrNotGet
+	return *new(V), lastErr
 }
 
 // Set traverse all the caches, if all of them fail it returns a generic ErrNotSet
@@ -61,17 +65,4 @@ func (m *MultiLevel[K, V]) Delete(ctx context.Context, k K) error {
 	}
 
 	return nil
-}
-
-// Close closes all the caches, it returns the last failing error
-func (m *MultiLevel[K, V]) Close() error {
-	var closeErr error
-
-	for _, c := range m.caches {
-		if err := c.Close(); err != nil {
-			closeErr = err
-		}
-	}
-
-	return closeErr
 }

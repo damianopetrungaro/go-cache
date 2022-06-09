@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"time"
 )
 
@@ -27,5 +26,4 @@ type Cache[K comparable, V any] interface {
 	Get(context.Context, K) (V, error)
 	Set(context.Context, K, V, time.Duration) error
 	Delete(context.Context, K) error
-	io.Closer
 }
