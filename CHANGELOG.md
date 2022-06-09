@@ -1,3 +1,12 @@
+# [0.4.0](https://github.com/damianopetrungaro/go-cache/compare/v0.3.0...v0.4.0) (2022-06-09)
+
+
+### Features
+
+* introduce default ttl on multi level cache ([82ce598](https://github.com/damianopetrungaro/go-cache/commit/82ce598231ba17c595e8694a7f7c91aa58156f47))
+
+
+
 # [0.3.0](https://github.com/damianopetrungaro/go-cache/compare/v0.2.0...v0.3.0) (2022-06-09)
 
 
