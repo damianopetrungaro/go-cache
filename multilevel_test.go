@@ -108,7 +108,7 @@ func newMultiLevel(t *testing.T) *MultiLevel[string, string] {
 	t.Helper()
 	inmem1 := NewInMemory[string, string](time.Second, 5)
 	inmem2 := NewInMemory[string, string](time.Second, 5)
-	multiLlv := NewMultiLevel[string, string](inmem1, inmem2)
+	multiLlv := NewMultiLevel[string, string](inmem1, 10*time.Second, inmem2, 10*time.Second)
 	t.Cleanup(func() {
 		if err := inmem1.Close(); err != nil {
 			t.Errorf("could not close inmem1 level: %s", err)
