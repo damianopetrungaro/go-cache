@@ -1,3 +1,12 @@
+# [0.2.0](https://github.com/damianopetrungaro/go-cache/compare/v0.1.1...v0.2.0) (2022-06-09)
+
+
+### Features
+
+* improve inmemory with rw mutex and expiry based eviction ([439552a](https://github.com/damianopetrungaro/go-cache/commit/439552a541f7853b44af3872d623865611578830))
+
+
+
 ## [0.1.1](https://github.com/damianopetrungaro/go-cache/compare/v0.1.0...v0.1.1) (2022-06-07)
 
 
