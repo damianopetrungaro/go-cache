@@ -1,3 +1,12 @@
+# [0.3.0](https://github.com/damianopetrungaro/go-cache/compare/v0.2.0...v0.3.0) (2022-06-09)
+
+
+### Features
+
+* revisit multi level cache to a safer one ([4fe03c6](https://github.com/damianopetrungaro/go-cache/commit/4fe03c685dc5695f45329738b6c6dd1fd4d9f972))
+
+
+
 # [0.2.0](https://github.com/damianopetrungaro/go-cache/compare/v0.1.1...v0.2.0) (2022-06-09)
 
 
