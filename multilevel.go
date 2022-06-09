@@ -5,17 +5,31 @@ import (
 	"time"
 )
 
+var (
+	// DefaultMultiLevelExpiration is a constant used to mark an item to expire to the default value passed to a MultiLevel
+	DefaultMultiLevelExpiration = time.Duration(-1)
+)
+
 // MultiLevel is a Cache implementation which allow a multi level usage cache
 type MultiLevel[K comparable, V any] struct {
-	local  *InMem[K, V]
-	remote Cache[K, V]
+	local            *InMem[K, V]
+	defaultLocalTTL  time.Duration
+	remote           Cache[K, V]
+	defaultRemoteTTL time.Duration
 }
 
 // NewMultiLevel returns a MultiLevel
-func NewMultiLevel[K comparable, V any](local *InMem[K, V], remote Cache[K, V]) *MultiLevel[K, V] {
+func NewMultiLevel[K comparable, V any](
+	local *InMem[K, V],
+	defaultLocalTTL time.Duration,
+	remote Cache[K, V],
+	defaultRemoteTTL time.Duration,
+) *MultiLevel[K, V] {
 	return &MultiLevel[K, V]{
-		local:  local,
-		remote: remote,
+		local:            local,
+		defaultLocalTTL:  defaultLocalTTL,
+		remote:           remote,
+		defaultRemoteTTL: defaultRemoteTTL,
 	}
 }
 
@@ -30,10 +44,16 @@ func (m *MultiLevel[K, V]) Get(ctx context.Context, k K) (V, error) {
 
 // Set traverse all the caches, if all of them fail it returns a generic ErrNotSet
 func (m *MultiLevel[K, V]) Set(ctx context.Context, k K, v V, ttl time.Duration) error {
+	if ttl == DefaultMultiLevelExpiration {
+		ttl = m.defaultRemoteTTL
+	}
 	if err := m.remote.Set(ctx, k, v, ttl); err != nil {
 		return err
 	}
 
+	if ttl == DefaultMultiLevelExpiration {
+		ttl = m.defaultLocalTTL
+	}
 	// in memory won't fail apart from having a ctx done.
 	// passing a background to prevent it
 	_ = m.local.Set(context.Background(), k, v, ttl)
